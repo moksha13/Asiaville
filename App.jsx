@@ -13,7 +13,7 @@ import {
   KeyboardAvoidingView,
   ScrollView,
 } from 'react-native';
-import {width} from './src/components/utils/DeviceDimensions';
+import {height, width} from './src/components/utils/DeviceDimensions';
 import {BackgroundImage} from './src/components/utils/images';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
@@ -78,14 +78,16 @@ const App = () => {
   ]);
 
   const postComment = () => {
-    const lastItem = commentData[commentData.length - 1];
-    const newComment = {
-      id: String(commentData.length + 1),
-      text: lastItem.text,
-      desc: text,
-    };
-    setCommentData([...commentData, newComment]);
-    setText('');
+    if (text !== '') {
+      const lastItem = commentData[commentData.length - 1];
+      const newComment = {
+        id: String(commentData.length + 1),
+        text: lastItem.text,
+        desc: text,
+      };
+      setCommentData([...commentData, newComment]);
+      setText('');
+    }
   };
 
   const TextComponent = ({title, style}) => {
@@ -196,26 +198,29 @@ const App = () => {
   const SurpriceBox = () => {
     const data = Array(10).fill({id: '1'});
     return (
-      <FlatList
-        data={data}
-        renderItem={({item}) => (
-          <Pressable style={[styles.surpriceBox, styles.surpriceBoxContainer]}>
-            <Image
-              source={{
-                uri: 'https://w7.pngwing.com/pngs/380/715/png-transparent-vector-gift-box-surprise-icon-bow-color-packaging-isometry.png',
-              }}
-              style={styles.surpriceImage}
-            />
-            <TextComponent
-              title={'Surprise Box'}
-              style={[styles.followButtonText, styles.surpriceText]}
-            />
-          </Pressable>
-        )}
-        keyExtractor={(item, index) => index.toString()}
-        horizontal={true}
-        showsHorizontalScrollIndicator={true}
-      />
+      <View style={{paddingHorizontal: 10}}>
+        <FlatList
+          data={data}
+          renderItem={({item}) => (
+            <Pressable
+              style={[styles.surpriceBox, styles.surpriceBoxContainer]}>
+              <Image
+                source={{
+                  uri: 'https://w7.pngwing.com/pngs/380/715/png-transparent-vector-gift-box-surprise-icon-bow-color-packaging-isometry.png',
+                }}
+                style={styles.surpriceImage}
+              />
+              <TextComponent
+                title={'Surprise Box'}
+                style={[styles.followButtonText, styles.surpriceText]}
+              />
+            </Pressable>
+          )}
+          keyExtractor={(item, index) => index.toString()}
+          horizontal={true}
+          showsHorizontalScrollIndicator={true}
+        />
+      </View>
     );
   };
   console.log(text, 'ppp');
@@ -231,120 +236,132 @@ const App = () => {
           }}
           style={styles.image}
           resizeMode="cover">
-          <View style={styles.header}>
-            <TextComponent title={'Live'} style={styles.liveText} />
-            <TextComponent title={'for you'} />
-            <TextComponent title={'Following'} />
-          </View>
-
-          <View style={styles.contentContainer}>
-            <UserAccount />
-            <FlatList
-              data={DATA}
-              renderItem={({item}) => (
-                <NumberOfLikes numberOfLikes={item.title} />
-              )}
-              keyExtractor={item => item.id}
-              horizontal={true}
-            />
-            <Icons />
-            <Image source={BackgroundImage} style={styles.viewerImgStyles} />
-            <View style={styles.commentContainerStyle}>
+          <View style={{height: height, justifyContent: 'space-between'}}>
+            <View style={{padding: 10}}>
+              <View style={styles.header}>
+                <TextComponent title={'Live'} style={styles.liveText} />
+                <TextComponent title={'for you'} />
+                <TextComponent title={'Following'} />
+              </View>
+              <UserAccount />
               <FlatList
-                data={commentData}
-                renderItem={renderItem}
+                data={DATA}
+                renderItem={({item}) => (
+                  <NumberOfLikes numberOfLikes={item.title} />
+                )}
                 keyExtractor={item => item.id}
+                horizontal={true}
               />
-              <View
-                style={{
-                  top: width / 3.5,
-                  marginRight: 8,
-                  alignItems: 'center',
-                }}>
-                <Image
-                  source={{
-                    uri: 'https://us.123rf.com/450wm/graphicmall/graphicmall2208/graphicmall220800305/190413142-video-film-3d-rendering-isometric-icon.jpg?ver=6',
-                  }}
-                  style={{width: 50, height: 50, borderRadius: 10}}
+            </View>
+
+            <View style={styles.contentContainer}>
+              <Icons />
+              <Image source={BackgroundImage} style={styles.viewerImgStyles} />
+            </View>
+            <View>
+              <View style={styles.commentContainerStyle}>
+                <FlatList
+                  data={commentData}
+                  renderItem={renderItem}
+                  keyExtractor={item => item.id}
                 />
+                <View
+                  style={{
+                    top: width / 3.5,
+                    marginRight: 8,
+                    alignItems: 'center',
+                  }}>
+                  <Image
+                    source={{
+                      uri: 'https://us.123rf.com/450wm/graphicmall/graphicmall2208/graphicmall220800305/190413142-video-film-3d-rendering-isometric-icon.jpg?ver=6',
+                    }}
+                    style={{width: 50, height: 50, borderRadius: 10}}
+                  />
+                  <Pressable
+                    style={[styles.followButton, styles.book1to1Container]}
+                    onPress={() => Alert.alert('1 to 1 booked')}>
+                    <TextComponent
+                      title={'Book 1 to 1'}
+                      style={[styles.followButtonText, styles.book1to1Text]}
+                    />
+                  </Pressable>
+                </View>
+              </View>
+              <SurpriceBox />
+              <View style={styles.saySomethingContainer}>
+                <View
+                  style={[
+                    styles.input,
+                    {width: showItems === false ? '90%' : width / 1.89},
+                  ]}>
+                  <TextInput
+                    placeholder="Say... Something"
+                    placeholderTextColor="#FFFFFF"
+                    value={text}
+                    onChangeText={e => setText(e)}
+                    style={styles.textInputContent}
+                  />
+                  <Pressable onPress={postComment}>
+                    <Feather name={'send'} size={20} color="yellow" />
+                  </Pressable>
+                </View>
+                {showItems ? (
+                  <View style={{flexDirection: 'row', paddingTop: 10}}>
+                    <Pressable style={[styles.icons, styles.yellowBorderIcon]}>
+                      <Feather name={'video'} size={18} color="white" />
+                    </Pressable>
+                    <Pressable style={[styles.icons, styles.yellowBorderIcon]}>
+                      <Feather name={'calendar'} size={18} color="white" />
+                    </Pressable>
+                    <Pressable style={[styles.icons, styles.yellowBorderIcon]}>
+                      <Feather name={'briefcase'} size={18} color="white" />
+                    </Pressable>
+                  </View>
+                ) : null}
+                <Feather
+                  name={'more-vertical'}
+                  size={24}
+                  color="white"
+                  style={{marginBottom: 10, marginRight: 20, paddingTop: 10}}
+                  onPress={() => setShowItems(!showItems)}
+                />
+              </View>
+              <View style={styles.tabContainer}>
+                <Pressable onPress={postComment} style={{alignItems: 'center'}}>
+                  <Feather name={'home'} size={24} color="yellow" />
+                  <TextComponent title={'Home'} style={styles.tabTextStyle} />
+                </Pressable>
                 <Pressable
-                  style={[styles.followButton, styles.book1to1Container]}
-                  onPress={() => Alert.alert('1 to 1 booked')}>
+                  onPress={postComment}
+                  style={{alignItems: 'center', marginRight: 40}}>
+                  <Feather name={'search'} size={24} color="yellow" />
                   <TextComponent
-                    title={'Book 1 to 1'}
-                    style={[styles.followButtonText, styles.book1to1Text]}
+                    title={'Discover'}
+                    style={styles.tabTextStyle}
                   />
                 </Pressable>
-              </View>
-            </View>
-            <SurpriceBox />
-            <View style={styles.saySomethingContainer}>
-              <View
-                style={[
-                  styles.input,
-                  {width: showItems === false ? '90%' : width / 1.89},
-                ]}>
-                <TextInput
-                  placeholder="Say... Something"
-                  placeholderTextColor="#FFFFFF"
-                  value={text}
-                  onChangeText={e => setText(e)}
-                  style={styles.textInputContent}
-                />
-                <Pressable onPress={postComment}>
-                  <Feather name={'send'} size={20} color="yellow" />
+                <Pressable
+                  onPress={postComment}
+                  style={{alignItems: 'center', marginLeft: 40}}>
+                  <Ionicons
+                    name={'notifications-circle-outline'}
+                    size={28}
+                    color="yellow"
+                  />
+                  <TextComponent title={'Live'} style={{fontSize: 11}} />
+                </Pressable>
+                <Pressable onPress={postComment} style={{alignItems: 'center'}}>
+                  <Feather name={'user'} size={24} color="yellow" />
+                  <TextComponent
+                    title={'Profile'}
+                    style={styles.tabTextStyle}
+                  />
+                </Pressable>
+                <Pressable style={styles.plusCircle}>
+                  <AntIcon name={'pluscircle'} size={24} color="yellow" />
                 </Pressable>
               </View>
-              {showItems ? (
-                <>
-                  <Pressable style={[styles.icons, styles.yellowBorderIcon]}>
-                    <Feather name={'video'} size={18} color="white" />
-                  </Pressable>
-                  <Pressable style={[styles.icons, styles.yellowBorderIcon]}>
-                    <Feather name={'calendar'} size={18} color="white" />
-                  </Pressable>
-                  <Pressable style={[styles.icons, styles.yellowBorderIcon]}>
-                    <Feather name={'briefcase'} size={18} color="white" />
-                  </Pressable>
-                </>
-              ) : null}
-              <Feather
-                name={'more-vertical'}
-                size={24}
-                color="white"
-                style={{marginBottom: 10, marginRight: 20}}
-                onPress={() => setShowItems(!showItems)}
-              />
             </View>
-          </View>
-          <View style={styles.tabContainer}>
-            <Pressable onPress={postComment} style={{alignItems: 'center'}}>
-              <Feather name={'home'} size={24} color="yellow" />
-              <TextComponent title={'Home'} style={styles.tabTextStyle} />
-            </Pressable>
-            <Pressable
-              onPress={postComment}
-              style={{alignItems: 'center', marginRight: 40}}>
-              <Feather name={'search'} size={24} color="yellow" />
-              <TextComponent title={'Discover'} style={styles.tabTextStyle} />
-            </Pressable>
-            <Pressable
-              onPress={postComment}
-              style={{alignItems: 'center', marginLeft: 40}}>
-              <Ionicons
-                name={'notifications-circle-outline'}
-                size={28}
-                color="yellow"
-              />
-              <TextComponent title={'Live'} style={{fontSize: 11}} />
-            </Pressable>
-            <Pressable onPress={postComment} style={{alignItems: 'center'}}>
-              <Feather name={'user'} size={24} color="yellow" />
-              <TextComponent title={'Profile'} style={styles.tabTextStyle} />
-            </Pressable>
-            <Pressable onPress={postComment} style={styles.plusCircle}>
-              <AntIcon name={'pluscircle'} size={24} color="yellow" />
-            </Pressable>
           </View>
         </ImageBackground>
       </ScrollView>
@@ -359,7 +376,7 @@ const styles = StyleSheet.create({
   image: {
     flex: 1,
     resizeMode: 'cover',
-    height: '100vh',
+    height: height,
     width: '100vw',
   },
   header: {
@@ -367,6 +384,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     paddingTop: width / 20,
     justifyContent: 'space-around',
+    paddingBottom: 10,
   },
   liveText: {
     borderBottomWidth: 2,
@@ -415,7 +433,10 @@ const styles = StyleSheet.create({
   commentContainerStyle: {
     display: 'flex',
     flexDirection: 'row',
-    paddingTop: width / 8,
+    padding: 10,
+
+    // paddingTop: width / 8,
+    // paddingTop: height / 17,
   },
   nameText: {
     fontSize: width / 26,
@@ -480,6 +501,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
+    padding: 10,
   },
   textInputContent: {color: 'white', paddingLeft: 10},
   icons: {
@@ -581,12 +603,13 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-around',
-    alignItems: 'center',
+    alignItems: 'flex-end',
     borderTopWidth: 1,
     borderColor: 'yellow',
     paddingTop: 5,
     position: 'relative',
     backgroundColor: 'black',
+    paddingBottom: 2,
   },
   tabTextStyle: {fontSize: 11, color: 'grey'},
 });
